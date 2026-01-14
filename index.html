@@ -12,94 +12,19 @@
     
     <title>Dashboard Mobile</title>
     
-   <style>
-        * {
+    <style>
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Arial, sans-serif;
-        }
-        
-        body {
-            background-color: #f5f5f5;
-            min-height: 100vh;
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
-            color: white;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        
-        .logo-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .logo h1 {
-            font-size: 24px;
-            font-weight: 600;
-        }
-        
-        .logo-icon {
-            font-size: 28px;
-            background: rgba(255,255,255,0.2);
-            padding: 10px;
-            border-radius: 10px;
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .container {
-            max-width: 1080px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-        
-        .dashboard-container {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
             overflow: hidden;
-            margin-top: 20px;
+            height: 100vh;
+            background: #f5f5f5;
+            -webkit-text-size-adjust: 100%;
         }
         
-        .dashboard-header {
-            padding: 20px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .dashboard-title {
-            color: #2a5298;
-            font-size: 22px;
-            font-weight: 600;
-        }
-        
-        .last-update {
-            color: #666;
-            font-size: 14px;
-        }
-        
-        .iframe-container {
+        #container {
             width: 100%;
-            height: 1080px;
+            height: 100vh;
             position: relative;
         }
         
@@ -107,51 +32,7 @@
             width: 100%;
             height: 100%;
             border: none;
-        }
-        
-        .loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #2a5298;
-        }
-        
-        .footer {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-            font-size: 14px;
-            margin-top: 30px;
-        }
-        
-        /* Responsivo */
-        @media (max-width: 780px) {
-            .logo-container {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-            
-            .dashboard-header {
-                flex-direction: column;
-                gap: 10px;
-                text-align: center;
-            }
-            
-            .iframe-container {
-                height: 600px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .iframe-container {
-                height: 500px;
-            }
-            
-            .logo h1 {
-                font-size: 20px;
-            }
+            display: block;
         }
         
         /* Loading para mobile */
@@ -249,3 +130,4 @@
     </script>
 </body>
 </html>
+
