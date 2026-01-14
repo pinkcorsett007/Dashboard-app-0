@@ -1,15 +1,16 @@
 {
   "name": "Dashboard Analytics",
   "short_name": "Dashboard",
-  "start_url": ".",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#1e3c72",
   "theme_color": "#1e3c72",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/2103/2103655.png",
+      "src": "https://cdn.jsdelivr.net/npm/@mdi/svg@7.2.96/svg/chart-bar.svg",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/svg+xml"
     }
   ]
 }
