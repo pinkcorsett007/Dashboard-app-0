@@ -1,90 +1,135 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-       <!-- iOS SPECIFIC -->
+    <meta charset="UTF-8">
+    
+    <!-- VIEWPORT UNIVERSAL -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- PWA GERAL (Android/Chrome) -->
+    <meta name="theme-color" content="#1e3c72">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- iOS ESPECÍFICO (Safari) -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Dashboard">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2103/2103655.png">
-    <!-- iOS Splash Screen (opcional) -->
-    <link rel="apple-touch-startup-image" href="/splash.png">
-    
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- PWA Config - CORRIGIDO -->
-    <meta name="theme-color" content="#1e3c72">
-    <meta name="mobile-web-app-capable" content="yes"> <!-- CORRIGIDO -->
-    <link rel="manifest" href="manifest.json">
     
     <title>Dashboard App</title>
     
     <style>
-        /* Seu CSS aqui */
+        /* ESTILOS ÚNICOS PARA AMBOS */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1e3c72;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100vh;
+            border: none;
+            -webkit-overflow-scrolling: touch; /* iOS smooth scroll */
+        }
     </style>
 </head>
 <body>
-    <!-- App Header -->
-    <header class="app-header">
-        <div class="app-title">
-            <span>📊</span>
-            <h1>Dashboard App</h1>
-        </div>
-    </header>
-
-    <!-- Dashboard -->
-    <main class="dashboard-container">
-        <modelo" width="1140" height="541.25" src="https://app.powerbi.com/reportEmbed?reportId=f8d67942-0e55-4233-882a-d2ac89066256&autoAuth=true&ctid=fa79531c-8ce5-4bd3-97ee-245e6ee266b8&actionBarEnabled=true" frameborder="0" allowFullScreen="true"></iframe>
-        <iframe 
-            src="https://app.powerbi.com/reportEmbed?reportId=f8d67942-0e55-4233-882a-d2ac89066256&autoAuth=true&ctid=fa79531c-8ce5-4bd3-97ee-245e6ee266b8&actionBarEnabled=true"
-            frameborder="0"
-            allowfullscreen>
-        </iframe>
-    </main>
-
-    <!-- Botão de Instalar -->
-    <button class="install-btn" id="installButton">
-        📲 Instalar App
-    </button>
-
+     <modelo" width="1140" height="541.25" src="https://app.powerbi.com/reportEmbed?reportId=f8d67942-0e55-4233-882a-d2ac89066256&autoAuth=true&ctid=fa79531c-8ce5-4bd3-97ee-245e6ee266b8&actionBarEnabled=true" frameborder="0" allowFullScreen="true"></iframe>
+    <iframe 
+        id="dashboard"
+        src="https://app.powerbi.com/reportEmbed?reportId=f8d67942-0e55-4233-882a-d2ac89066256&autoAuth=true&ctid=fa79531c-8ce5-4bd3-97ee-245e6ee266b8&actionBarEnabled=true?chromeless=1"
+        allow="fullscreen"
+        sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+        loading="eager">
+    </iframe>
+    
     <script>
-        // Service Worker Simples
+        // DETECTAR DISPOSITIVO
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        const isAndroid = /Android/.test(navigator.userAgent);
+        
+        console.log('Dispositivo:', isIOS ? 'iOS' : isAndroid ? 'Android' : 'Desktop');
+        
+        // SERVICE WORKER ÚNICO (funciona em ambos)
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/Dashboard-app-0/service-worker.js')
-                .catch(err => console.log('SW não registrado:', err));
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('✅ SW registrado em:', navigator.userAgent))
+                    .catch(err => console.log('❌ SW erro:', err));
+            });
         }
         
-        // Instalação PWA
+        // INSTALAÇÃO PWA
         let deferredPrompt;
-        const installButton = document.getElementById('installButton');
+        let isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches;
+        
+        if (isInStandaloneMode) {
+            console.log('📱 Já está rodando como PWA');
+        }
         
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            installButton.style.display = 'block';
+            console.log('📲 PWA disponível para instalação');
+            
+            // Mostrar botão de instalação (Android/Desktop)
+            if (!isIOS) {
+                showInstallButton();
+            }
         });
         
-        installButton.addEventListener('click', () => {
-            if (!deferredPrompt) return;
+        // iOS: Mostrar instruções específicas
+        if (isIOS && !isInStandaloneMode) {
+            setTimeout(showIOSInstructions, 2000);
+        }
+        
+        function showInstallButton() {
+            const btn = document.createElement('button');
+            btn.innerHTML = '📲 Instalar App';
+            btn.style.cssText = `
+                position: fixed; bottom: 20px; right: 20px;
+                background: #1e3c72; color: white; padding: 12px 24px;
+                border-radius: 25px; border: none; cursor: pointer;
+                z-index: 1000; font-weight: bold;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            `;
             
-            deferredPrompt.prompt();
-            
-            deferredPrompt.userChoice.then(choice => {
-                if (choice.outcome === 'accepted') {
-                    console.log('App instalado!');
-                    installButton.style.display = 'none';
+            btn.onclick = () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
                 }
-                deferredPrompt = null;
-            });
-        });
+            };
+            
+            document.body.appendChild(btn);
+        }
         
-        // Detectar se já está instalado
-        window.addEventListener('appinstalled', () => {
-            installButton.style.display = 'none';
-        });
+        function showIOSInstructions() {
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <div style="
+                    position: fixed; bottom: 20px; left: 20px; right: 20px;
+                    background: rgba(255,255,255,0.95); padding: 15px;
+                    border-radius: 15px; text-align: center;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index: 1000;
+                ">
+                    <p style="margin:0 0 10px 0; font-weight:bold;">📱 Para instalar no iPhone:</p>
+                    <p style="margin:0 0 5px 0; font-size:14px;">1. Toque em <strong>Compartilhar (📤)</strong></p>
+                    <p style="margin:0 0 5px 0; font-size:14px;">2. Role para baixo</p>
+                    <p style="margin:0 0 10px 0; font-size:14px;">3. Toque em <strong>Adicionar à Tela de Início</strong></p>
+                    <button onclick="this.parentElement.parentElement.style.display='none'" 
+                            style="background:#1e3c72; color:white; border:none; padding:8px 16px; border-radius:8px;">
+                        Entendi
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(div);
+        }
     </script>
 </body>
-
 </html>
-
 
