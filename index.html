@@ -185,12 +185,15 @@
                     <h2 class="dashboard-title">Relatório de Performance</h2>
                     <p class="last-update">Última atualização: <span id="update-date">Carregando...</span></p>
                 </div>
-    
-     <modelo" width="1140" height="541.25" src="https://app.powerbi.com/reportEmbed?reportId=f8d67942-0e55-4233-882a-d2ac89066256&autoAuth=true&ctid=fa79531c-8ce5-4bd3-97ee-245e6ee266b8&actionBarEnabled=true" frameborder="0" allowFullScreen="true"></iframe>
+         <div class="iframe-container">
+                <div class="loading"></div>
+     <iframe title="modelo" width="1140" height="541.25" src="https://app.powerbi.com/reportEmbed?reportId=f8d67942-0e55-4233-882a-d2ac89066256&autoAuth=true&ctid=fa79531c-8ce5-4bd3-97ee-245e6ee266b8&actionBarEnabled=true" frameborder="0" allowFullScreen="true"></iframe>
     <iframe 
         id="dashboard"
         src="https://app.powerbi.com/reportEmbed?reportId=f8d67942-0e55-4233-882a-d2ac89066256&autoAuth=true&ctid=fa79531c-8ce5-4bd3-97ee-245e6ee266b8&actionBarEnabled=true?chromeless=1"
-        allow="fullscreen"
+        frameborder="0"
+        allowfullscreen>
+        <!--allow="fullscreen"-->
         sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
         loading="eager">
     </iframe>
@@ -276,9 +279,16 @@
             `;
             document.body.appendChild(div);
         }
+        
+    <!-- Rodapé -->
+    <footer class="footer">
+        <p>© 2024 Dashboard Analytics. Todos os direitos reservados.</p>
+        <p>Para suporte, contate: suporte@empresa.com</p>
+    </footer>
     </script>
 </body>
 </html>
+
 
 
 
