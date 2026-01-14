@@ -1,22 +1,16 @@
+// service-worker.js - versão SIMPLES que funciona
 const CACHE_NAME = 'dashboard-v1';
-const urlsToCache = [
-  '/',
-  '/index.html',
-  '/style.css'
-];
 
-// Instalação
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
-  );
+  console.log('Service Worker instalado!');
+  self.skipWaiting();
 });
 
-// Fetch (offline)
+self.addEventListener('activate', event => {
+  console.log('Service Worker ativado!');
+});
+
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => response || fetch(event.request))
-  );
+  // Apenas passa as requisições, sem cache
+  event.respondWith(fetch(event.request));
 });
