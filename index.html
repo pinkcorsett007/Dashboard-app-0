@@ -2,7 +2,8 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- VIEWPORT CRÍTICO PARA SEU POWER BI -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <!-- PWA Config -->
     <meta name="theme-color" content="#1e3c72">
@@ -13,123 +14,125 @@
     <title>Dashboard Mobile</title>
     
     <style>
-        body {
+        /* RESET PARA POWER BI MOBILE */
+        * {
             margin: 0;
             padding: 0;
-            overflow: hidden;
-            height: 100vh;
-            background: #f5f5f5;
-            -webkit-text-size-adjust: 100%;
+            box-sizing: border-box;
         }
         
-        #container {
+        html, body {
             width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            width: 100vw;
             height: 100vh;
+            height: -webkit-fill-available;
             position: relative;
         }
         
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
-        }
-        
-        /* Loading para mobile */
-        .mobile-loading {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: #1e3c72;
-            font-family: Arial, sans-serif;
+        /* AJUSTES PARA iOS */
+        @supports (padding: max(0px)) {
+            .container {
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: env(safe-area-inset-bottom);
+                padding-left: env(safe-area-inset-left);
+                padding-right: env(safe-area-inset-right);
+            }
         }
     </style>
 </head>
 <body>
-    <div id="container">
-        <iframe title="modelo pb" width="1140" height="541.25" src="https://app.powerbi.com/reportEmbed?reportId=981fae87-778f-450d-a32d-0e98ac006e1c&autoAuth=true&ctid=fa79531c-8ce5-4bd3-97ee-245e6ee266b8&actionBarEnabled=true" frameborder="0" allowFullScreen="true"></iframe>
-        <iframe 
-            id="dashboardFrame"
-            src="https://app.powerbi.com/reportEmbed?reportId=981fae87-778f-450d-a32d-0e98ac006e1c&autoAuth=true&ctid=fa79531c-8ce5-4bd3-97ee-245e6ee266b8&actionBarEnabled=true"
+    <div class="container">
+        <!-- SEU IFRAME COM PARÂMETROS MOBILE -->
+        <iframe
+            id="powerbi-dashboard"
+            src="https://app.powerbi.com/reportEmbed?reportId=981fae87-778f-450d-a32d-0e98ac006e1c&autoAuth=true&ctid=fa79531c-8ce5-4bd3-97ee-245e6ee266b8&config=eyJjb250ZXh0Ijp7Im1vYmlsZVJlZGlyZWN0VXJsIjoiIn19&mobileRedirect=true&responsive=true&chromeless=1"
+            style="width:100%; height:100%; border:none;"
+            title="Dashboard Analytics"
             allowfullscreen
-            loading="eager">
+            sandbox="allow-scripts allow-same-origin allow-popups allow-forms">
         </iframe>
     </div>
     
-    <div class="mobile-loading" id="loading">
-        <p>Carregando dashboard mobile...</p>
-    </div>
-    
     <script>
-        // Detectar dispositivo
+        // DETECTAR DISPOSITIVO
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
         
-        // Elementos
-        const iframe = document.getElementById('dashboardFrame');
-        const loading = document.getElementById('loading');
+        console.log('📱 Dispositivo:', isMobile ? 'Mobile' : 'Desktop');
         
-        // Configurar para mobile se necessário
-        function configureForMobile() {
-            if (!isMobile) return;
+        // CONFIGURAÇÕES ESPECÍFICAS PARA SEU POWER BI
+        function configurePowerBIMobile() {
+            const iframe = document.getElementById('powerbi-dashboard');
             
-            console.log('📱 Dispositivo mobile detectado');
-            
-            // Adicionar parâmetros mobile à URL
-            let src = iframe.src;
-            
-            // Se já tem parâmetros, ajustar
-            if (src.includes('?')) {
-                src += '&mobileRedirect=true&responsive=true';
-            } else {
-                src += '?mobileRedirect=true&responsive=true';
+            if (isMobile) {
+                console.log('🔧 Aplicando configurações mobile...');
+                
+                // PARÂMETROS ESSENCIAIS PARA SEU REPORT ID
+                const mobileParams = {
+                    'config': 'eyJjb250ZXh0Ijp7Im1vYmlsZVJlZGlyZWN0VXJsIjoiIn19',
+                    'mobileRedirect': 'true',
+                    'responsive': 'true',
+                    'fitToPage': 'true',
+                    'chromeless': '1',
+                    'navContentPaneEnabled': 'false'
+                };
+                
+                // Construir URL com parâmetros
+                let baseUrl = 'https://app.powerbi.com/reportEmbed?';
+                baseUrl += 'reportId=981fae87-778f-450d-a32d-0e98ac006e1c';
+                baseUrl += '&autoAuth=true';
+                baseUrl += '&ctid=fa79531c-8ce5-4bd3-97ee-245e6ee266b8';
+                
+                // Adicionar parâmetros mobile
+                Object.entries(mobileParams).forEach(([key, value]) => {
+                    baseUrl += `&${key}=${value}`;
+                });
+                
+                iframe.src = baseUrl;
+                console.log('✅ URL mobile configurada');
+                
+                // Ajustar altura dinamicamente
+                function adjustHeight() {
+                    const container = document.querySelector('.container');
+                    container.style.height = window.innerHeight + 'px';
+                }
+                
+                adjustHeight();
+                window.addEventListener('resize', adjustHeight);
+                window.addEventListener('orientationchange', function() {
+                    setTimeout(adjustHeight, 300);
+                });
             }
-            
-            // Forçar parâmetros mobile
-            src += '&navContentPaneEnabled=false';
-            src += '&filterPaneEnabled=false';
-            src += '&allowMobileView=true';
-            
-            iframe.src = src;
-            
-            // Ajustar viewport para mobile
-            document.querySelector('meta[name="viewport"]')
-                .setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
         }
         
-        // Quando iframe carregar
-        iframe.onload = function() {
-            loading.style.display = 'none';
-            console.log('✅ Dashboard carregado');
-            
-            // Se for mobile, enviar mensagem para Power BI
-            if (isMobile) {
-                setTimeout(() => {
-                    try {
-                        iframe.contentWindow.postMessage({
-                            type: 'mobileView',
-                            enabled: true
-                        }, '*');
-                    } catch(e) {
-                        console.log('Não foi possível enviar mensagem mobile');
-                    }
-                }, 1000);
+        // EXECUTAR QUANDO PÁGINA CARREGAR
+        document.addEventListener('DOMContentLoaded', configurePowerBIMobile);
+        
+        // FORÇAR MOBILE SE DETECTAR TELA PEQUENA
+        if (window.innerWidth <= 768) {
+            const iframe = document.getElementById('powerbi-dashboard');
+            if (iframe && !iframe.src.includes('mobileRedirect')) {
+                iframe.src += '&mobileRedirect=true';
             }
-        };
+        }
         
-        // Configurar inicialmente
-        configureForMobile();
-        
-        // Service Worker simplificado
+        // SERVICE WORKER SIMPLES
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('service-worker.js')
-                .then(() => console.log('SW OK para mobile'))
-                .catch(e => console.log('SW erro mobile:', e));
+                .then(() => console.log('✅ SW para mobile registrado'))
+                .catch(e => console.log('ℹ️ SW não crítico para mobile'));
         }
     </script>
 </body>
 </html>
+
 
 
 
