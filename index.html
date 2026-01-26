@@ -9,9 +9,12 @@
     <meta name="theme-color" content="#1e3c72">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Dashboard">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2103/2103655.png">
     <link rel="manifest" href="manifest.json">
     
-    <title>Dashboard Mobile</title>
+    <title>Dashboard Analytics</title>
     
     <style>
         /* RESET PARA POWER BI MOBILE */
@@ -19,209 +22,552 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
         
         html, body {
             width: 100%;
             height: 100%;
             overflow: hidden;
-            position: fixed;
             background: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         
+        /* CABEÇALHO */
+        .header {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-icon {
+            font-size: 24px;
+        }
+        
+        .logo-text h1 {
+            font-size: 18px;
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .logo-text p {
+            font-size: 12px;
+            margin: 0;
+            opacity: 0.8;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .install-badge {
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .install-badge:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        /* CONTAINER PRINCIPAL */
         .container {
             width: 100vw;
-            height: 100vh;
-            height: -webkit-fill-available;
+            height: calc(100vh - 70px);
             position: relative;
+        }
+        
+        /* IFRAME DO POWER BI */
+        #powerbi-dashboard {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+        
+        /* MODAL DE INSTALAÇÃO */
+        .install-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .install-content {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .install-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .install-content h3 {
+            margin: 0 0 10px 0;
+            color: #1e3c72;
+        }
+        
+        .install-content p {
+            margin: 0 0 20px 0;
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .install-steps {
+            text-align: left;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .install-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .step-number {
+            background: #1e3c72;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+        
+        .install-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .install-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .install-primary {
+            background: #1e3c72;
+            color: white;
+        }
+        
+        .install-primary:hover {
+            background: #2a5298;
+        }
+        
+        .install-secondary {
+            background: #f0f2f5;
+            color: #333;
+        }
+        
+        .install-secondary:hover {
+            background: #e4e6e9;
+        }
+        
+        /* BOTÃO FLUTUANTE DE INSTALAÇÃO */
+        .floating-install-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #1e3c72;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            display: none;
+            z-index: 100;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 4px 15px rgba(30, 60, 114, 0.4); }
+            50% { box-shadow: 0 4px 20px rgba(30, 60, 114, 0.6); }
+            100% { box-shadow: 0 4px 15px rgba(30, 60, 114, 0.4); }
         }
         
         /* AJUSTES PARA iOS */
         @supports (padding: max(0px)) {
+            .header {
+                padding-top: max(15px, env(safe-area-inset-top));
+                padding-left: max(20px, env(safe-area-inset-left));
+                padding-right: max(20px, env(safe-area-inset-right));
+            }
+            
             .container {
-                padding-top: env(safe-area-inset-top);
-                padding-bottom: env(safe-area-inset-bottom);
-                padding-left: env(safe-area-inset-left);
-                padding-right: env(safe-area-inset-right);
+                height: calc(100vh - 70px - env(safe-area-inset-top));
+            }
+            
+            .floating-install-btn {
+                bottom: max(20px, env(safe-area-inset-bottom));
+                right: max(20px, env(safe-area-inset-right));
+            }
+        }
+        
+        /* RESPONSIVO */
+        @media (max-width: 480px) {
+            .header {
+                padding: 12px 15px;
+            }
+            
+            .logo-text h1 {
+                font-size: 16px;
+            }
+            
+            .install-badge span {
+                display: none;
+            }
+            
+            .install-badge {
+                padding: 6px;
             }
         }
     </style>
 </head>
 <body>
+    <!-- CABEÇALHO -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">📊</div>
+            <div class="logo-text">
+                <h1>Dashboard Analytics</h1>
+                <p>Painel de controle em tempo real</p>
+            </div>
+        </div>
+        <div class="user-info">
+            <div class="install-badge" id="installBadge">
+                <span>Instalar App</span>
+                <span>📱</span>
+            </div>
+        </div>
+    </header>
+    
+    <!-- CONTAINER PRINCIPAL -->
     <div class="container">
-        <!-- SEU IFRAME COM PARÂMETROS MOBILE -->
+        <!-- IFRAME DO POWER BI -->
         <iframe
             id="powerbi-dashboard"
-            src="https://app.powerbi.com/reportEmbed?reportId=3fa46e1d-4346-4c1b-82cf-da3b4a44ecc5&autoAuth=true&ctid=6fa1c42b-11d9-4f7a-9010-002983ed1d8e"
-            style="width:100%; height:100%; border:none;"
+            src="https://app.powerbi.com/reportEmbed?reportId=3fa46e1d-4346-4c1b-82cf-da3b4a44ecc5&autoAuth=true&ctid=6fa1c42b-11d9-4f7a-9010-002983ed1d8e&config=eyJjb250ZXh0Ijp7Im1vYmlsZVJlZGlyZWN0VXJsIjoiIn19&mobileRedirect=true&responsive=true&chromeless=1"
             title="Dashboard Analytics"
             allowfullscreen
             sandbox="allow-scripts allow-same-origin allow-popups allow-forms">
         </iframe>
     </div>
     
+    <!-- BOTÃO FLUTUANTE DE INSTALAÇÃO -->
+    <button class="floating-install-btn" id="floatingInstallBtn">
+        <span>📲</span>
+        <span>Instalar App</span>
+    </button>
+    
+    <!-- MODAL DE INSTALAÇÃO -->
+    <div class="install-modal" id="installModal">
+        <div class="install-content">
+            <div class="install-icon">📱</div>
+            <h3>Instalar Dashboard App</h3>
+            <p>Para melhor experiência, instale o aplicativo na tela inicial do seu dispositivo.</p>
+            
+            <div class="install-steps" id="installSteps">
+                <!-- Conteúdo dinâmico baseado no dispositivo -->
+            </div>
+            
+            <div class="install-buttons">
+                <button class="install-btn install-primary" id="installNowBtn">Instalar Agora</button>
+                <button class="install-btn install-secondary" id="closeInstallBtn">Depois</button>
+            </div>
+        </div>
+    </div>
+    
     <script>
         // DETECTAR DISPOSITIVO
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        const isAndroid = /Android/.test(navigator.userAgent);
+        const isMobile = isIOS || isAndroid;
+        const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches;
         
-        console.log('📱 Dispositivo:', isMobile ? 'Mobile' : 'Desktop');
+        console.log('📱 Dispositivo:', isIOS ? 'iOS' : isAndroid ? 'Android' : 'Desktop');
+        if (isInStandaloneMode) console.log('🚀 Já instalado como PWA');
         
-        // CONFIGURAÇÕES ESPECÍFICAS PARA SEU POWER BI
+        // ELEMENTOS DO DOM
+        const installBadge = document.getElementById('installBadge');
+        const floatingInstallBtn = document.getElementById('floatingInstallBtn');
+        const installModal = document.getElementById('installModal');
+        const installSteps = document.getElementById('installSteps');
+        const installNowBtn = document.getElementById('installNowBtn');
+        const closeInstallBtn = document.getElementById('closeInstallBtn');
+        
+        // VARIÁVEIS PWA
+        let deferredPrompt = null;
+        
+        // ============================================
+        // 1. CONFIGURAÇÃO DO POWER BI MOBILE
+        // ============================================
         function configurePowerBIMobile() {
             const iframe = document.getElementById('powerbi-dashboard');
             
             if (isMobile) {
-                console.log('🔧 Aplicando configurações mobile...');
+                console.log('🔧 Aplicando configurações mobile para Power BI...');
                 
-                // PARÂMETROS ESSENCIAIS PARA SEU REPORT ID
+                // Parâmetros mobile ESSENCIAIS
                 const mobileParams = {
                     'config': 'eyJjb250ZXh0Ijp7Im1vYmlsZVJlZGlyZWN0VXJsIjoiIn19',
                     'mobileRedirect': 'true',
                     'responsive': 'true',
                     'fitToPage': 'true',
                     'chromeless': '1',
-                    'navContentPaneEnabled': 'false'
+                    'navContentPaneEnabled': 'false',
+                    'filterPaneEnabled': 'false'
                 };
                 
-                // Construir URL com parâmetros
-                let baseUrl = 'https://app.powerbi.com/reportEmbed?';
-                baseUrl += 'reportId=981fae87-778f-450d-a32d-0e98ac006e1c';
-                baseUrl += '&autoAuth=true';
-                baseUrl += '&ctid=fa79531c-8ce5-4bd3-97ee-245e6ee266b8';
-                
-                // Adicionar parâmetros mobile
-                Object.entries(mobileParams).forEach(([key, value]) => {
-                    baseUrl += `&${key}=${value}`;
-                });
-                
-                iframe.src = baseUrl;
-                console.log('✅ URL mobile configurada');
-                
-                // Ajustar altura dinamicamente
-                function adjustHeight() {
-                    const container = document.querySelector('.container');
-                    container.style.height = window.innerHeight + 'px';
+                // Adicionar parâmetros à URL existente
+                let url = iframe.src;
+                if (!url.includes('config=')) {
+                    Object.entries(mobileParams).forEach(([key, value]) => {
+                        if (!url.includes(key + '=')) {
+                            url += url.includes('?') ? '&' : '?';
+                            url += `${key}=${value}`;
+                        }
+                    });
+                    iframe.src = url;
                 }
-                
-                adjustHeight();
-                window.addEventListener('resize', adjustHeight);
-                window.addEventListener('orientationchange', function() {
-                    setTimeout(adjustHeight, 300);
-                });
             }
         }
         
-
-        // EXECUTAR QUANDO PÁGINA CARREGAR
-        document.addEventListener('DOMContentLoaded', configurePowerBIMobile);
+        // ============================================
+        // 2. CONFIGURAÇÃO DO PWA
+        // ============================================
         
-        // FORÇAR MOBILE SE DETECTAR TELA PEQUENA
+        // Evento: PWA pode ser instalado (Android/Desktop)
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            console.log('📲 PWA disponível para instalação');
+            
+            // Mostrar elementos de instalação
+            installBadge.style.display = 'flex';
+            floatingInstallBtn.style.display = 'flex';
+            
+            // Configurar modal para Android
+            setupInstallModal('android');
+        });
+        
+        // Evento: PWA foi instalado
+        window.addEventListener('appinstalled', () => {
+            console.log('🎉 PWA instalado com sucesso!');
+            hideInstallElements();
+        });
+        
+        // Se já está em modo standalone (já instalado)
+        if (isInStandaloneMode) {
+            hideInstallElements();
+        } else if (isIOS) {
+            // Para iOS, sempre mostrar opção de instalação
+            installBadge.style.display = 'flex';
+            floatingInstallBtn.style.display = 'flex';
+            setupInstallModal('ios');
+        }
+        
+        // ============================================
+        // 3. FUNÇÕES DE INSTALAÇÃO
+        // ============================================
+        
+        // Configurar modal baseado no dispositivo
+        function setupInstallModal(device) {
+            if (device === 'ios') {
+                installSteps.innerHTML = `
+                    <div class="install-step">
+                        <div class="step-number">1</div>
+                        <span>Toque no ícone <strong>Compartilhar (📤)</strong></span>
+                    </div>
+                    <div class="install-step">
+                        <div class="step-number">2</div>
+                        <span>Role para baixo no menu</span>
+                    </div>
+                    <div class="install-step">
+                        <div class="step-number">3</div>
+                        <span>Toque em <strong>"Adicionar à Tela de Início"</strong></span>
+                    </div>
+                    <div class="install-step">
+                        <div class="step-number">4</div>
+                        <span>Toque em <strong>"Adicionar"</strong> no canto superior</span>
+                    </div>
+                `;
+                installNowBtn.textContent = 'Entendi, vou instalar';
+            } else {
+                installSteps.innerHTML = `
+                    <div class="install-step">
+                        <div class="step-number">1</div>
+                        <span>Clique no botão <strong>"Instalar Agora"</strong></span>
+                    </div>
+                    <div class="install-step">
+                        <div class="step-number">2</div>
+                        <span>Confirme a instalação na janela que aparecer</span>
+                    </div>
+                    <div class="install-step">
+                        <div class="step-number">3</div>
+                        <span>O aplicativo será instalado na sua tela inicial</span>
+                    </div>
+                `;
+                installNowBtn.textContent = 'Instalar Agora';
+            }
+        }
+        
+        // Mostrar modal de instalação
+        function showInstallModal() {
+            installModal.style.display = 'flex';
+        }
+        
+        // Esconder elementos de instalação
+        function hideInstallElements() {
+            installBadge.style.display = 'none';
+            floatingInstallBtn.style.display = 'none';
+        }
+        
+        // Instalar PWA (Android/Desktop)
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(choice => {
+                    if (choice.outcome === 'accepted') {
+                        console.log('✅ Usuário aceitou instalação');
+                    }
+                    deferredPrompt = null;
+                    installModal.style.display = 'none';
+                });
+            } else if (isIOS) {
+                // Para iOS, apenas fecha o modal (instalação é manual)
+                installModal.style.display = 'none';
+                alert('Para iOS: Use o menu Compartilhar do Safari para instalar o app.');
+            }
+        }
+        
+        // ============================================
+        // 4. SERVICE WORKER
+        // ============================================
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('✅ Service Worker registrado:', reg.scope))
+                    .catch(err => console.log('⚠️ Service Worker não registrado:', err));
+            });
+        }
+        
+        // ============================================
+        // 5. EVENT LISTENERS
+        // ============================================
+        
+        // Badge no cabeçalho
+        installBadge.addEventListener('click', showInstallModal);
+        
+        // Botão flutuante
+        floatingInstallBtn.addEventListener('click', showInstallModal);
+        
+        // Botão de instalar no modal
+        installNowBtn.addEventListener('click', installPWA);
+        
+        // Botão de fechar modal
+        closeInstallBtn.addEventListener('click', () => {
+            installModal.style.display = 'none';
+        });
+        
+        // Fechar modal ao clicar fora
+        installModal.addEventListener('click', (e) => {
+            if (e.target === installModal) {
+                installModal.style.display = 'none';
+            }
+        });
+        
+        // ============================================
+        // 6. INICIALIZAÇÃO
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Configurar Power BI Mobile
+            configurePowerBIMobile();
+            
+            // Ajustar altura do container
+            function adjustContainerHeight() {
+                const headerHeight = document.querySelector('.header').offsetHeight;
+                const container = document.querySelector('.container');
+                container.style.height = `calc(100vh - ${headerHeight}px)`;
+            }
+            
+            adjustContainerHeight();
+            window.addEventListener('resize', adjustContainerHeight);
+            window.addEventListener('orientationchange', () => {
+                setTimeout(adjustContainerHeight, 300);
+            });
+            
+            // Se for mobile, ajustar periodicamente
+            if (isMobile) {
+                setInterval(adjustContainerHeight, 1000);
+            }
+            
+            // Verificar se já está instalado
+            if (isInStandaloneMode) {
+                console.log('🎯 App já está instalado como PWA');
+            }
+        });
+        
+        // Forçar mobile se tela pequena (mesmo em desktop)
         if (window.innerWidth <= 768) {
             const iframe = document.getElementById('powerbi-dashboard');
             if (iframe && !iframe.src.includes('mobileRedirect')) {
                 iframe.src += '&mobileRedirect=true';
             }
         }
-        
-        // SERVICE WORKER SIMPLES
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.js')
-                .then(() => console.log('✅ SW para mobile registrado'))
-                .catch(e => console.log('ℹ️ SW não crítico para mobile'));
-        }
-    </script>
-  <script>
-        // DETECTAR DISPOSITIVO
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-        const isAndroid = /Android/.test(navigator.userAgent);
-        
-        console.log('Dispositivo:', isIOS ? 'iOS' : isAndroid ? 'Android' : 'Desktop');
-        
-        // SERVICE WORKER ÚNICO (funciona em ambos)
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('service-worker.js')
-                    .then(reg => console.log('✅ SW registrado em:', navigator.userAgent))
-                    .catch(err => console.log('❌ SW erro:', err));
-            });
-        }
-        
-        // INSTALAÇÃO PWA
-        let deferredPrompt;
-        let isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches;
-        
-        if (isInStandaloneMode) {
-            console.log('📱 Já está rodando como PWA');
-        }
-        
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            console.log('📲 PWA disponível para instalação');
-            
-            // Mostrar botão de instalação (Android/Desktop)
-            if (!isIOS) {
-                showInstallButton();
-            }
-        });
-        
-        // iOS: Mostrar instruções específicas
-        if (isIOS && !isInStandaloneMode) {
-            setTimeout(showIOSInstructions, 2000);
-        }
-        
-        function showInstallButton() {
-            const btn = document.createElement('button');
-            btn.innerHTML = '📲 Instalar App';
-            btn.style.cssText = `
-                position: fixed; bottom: 20px; right: 20px;
-                background: #1e3c72; color: white; padding: 12px 24px;
-                border-radius: 25px; border: none; cursor: pointer;
-                z-index: 1000; font-weight: bold;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            `;
-            
-            btn.onclick = () => {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                }
-            };
-            
-            document.body.appendChild(btn);
-        }
-        
-        function showIOSInstructions() {
-            const div = document.createElement('div');
-            div.innerHTML = `
-                <div style="
-                    position: fixed; bottom: 20px; left: 20px; right: 20px;
-                    background: rgba(255,255,255,0.95); padding: 15px;
-                    border-radius: 15px; text-align: center;
-                    box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index: 1000;
-                ">
-                    <p style="margin:0 0 10px 0; font-weight:bold;">📱 Para instalar no iPhone:</p>
-                    <p style="margin:0 0 5px 0; font-size:14px;">1. Toque em <strong>Compartilhar (📤)</strong></p>
-                    <p style="margin:0 0 5px 0; font-size:14px;">2. Role para baixo</p>
-                    <p style="margin:0 0 10px 0; font-size:14px;">3. Toque em <strong>Adicionar à Tela de Início</strong></p>
-                    <button onclick="this.parentElement.parentElement.style.display='none'" 
-                            style="background:#1e3c72; color:white; border:none; padding:8px 16px; border-radius:8px;">
-                        Entendi
-                    </button>
-                </div>
-            `;
-            document.body.appendChild(div);
-        }
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
