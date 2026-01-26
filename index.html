@@ -112,6 +112,7 @@
             }
         }
         
+
         // EXECUTAR QUANDO PÁGINA CARREGAR
         document.addEventListener('DOMContentLoaded', configurePowerBIMobile);
         
@@ -130,9 +131,90 @@
                 .catch(e => console.log('ℹ️ SW não crítico para mobile'));
         }
     </script>
+  <script>
+        // DETECTAR DISPOSITIVO
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        const isAndroid = /Android/.test(navigator.userAgent);
+        
+        console.log('Dispositivo:', isIOS ? 'iOS' : isAndroid ? 'Android' : 'Desktop');
+        
+        // SERVICE WORKER ÚNICO (funciona em ambos)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(reg => console.log('✅ SW registrado em:', navigator.userAgent))
+                    .catch(err => console.log('❌ SW erro:', err));
+            });
+        }
+        
+        // INSTALAÇÃO PWA
+        let deferredPrompt;
+        let isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches;
+        
+        if (isInStandaloneMode) {
+            console.log('📱 Já está rodando como PWA');
+        }
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            console.log('📲 PWA disponível para instalação');
+            
+            // Mostrar botão de instalação (Android/Desktop)
+            if (!isIOS) {
+                showInstallButton();
+            }
+        });
+        
+        // iOS: Mostrar instruções específicas
+        if (isIOS && !isInStandaloneMode) {
+            setTimeout(showIOSInstructions, 2000);
+        }
+        
+        function showInstallButton() {
+            const btn = document.createElement('button');
+            btn.innerHTML = '📲 Instalar App';
+            btn.style.cssText = `
+                position: fixed; bottom: 20px; right: 20px;
+                background: #1e3c72; color: white; padding: 12px 24px;
+                border-radius: 25px; border: none; cursor: pointer;
+                z-index: 1000; font-weight: bold;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            `;
+            
+            btn.onclick = () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                }
+            };
+            
+            document.body.appendChild(btn);
+        }
+        
+        function showIOSInstructions() {
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <div style="
+                    position: fixed; bottom: 20px; left: 20px; right: 20px;
+                    background: rgba(255,255,255,0.95); padding: 15px;
+                    border-radius: 15px; text-align: center;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index: 1000;
+                ">
+                    <p style="margin:0 0 10px 0; font-weight:bold;">📱 Para instalar no iPhone:</p>
+                    <p style="margin:0 0 5px 0; font-size:14px;">1. Toque em <strong>Compartilhar (📤)</strong></p>
+                    <p style="margin:0 0 5px 0; font-size:14px;">2. Role para baixo</p>
+                    <p style="margin:0 0 10px 0; font-size:14px;">3. Toque em <strong>Adicionar à Tela de Início</strong></p>
+                    <button onclick="this.parentElement.parentElement.style.display='none'" 
+                            style="background:#1e3c72; color:white; border:none; padding:8px 16px; border-radius:8px;">
+                        Entendi
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(div);
+        }
+    </script>
 </body>
 </html>
-
 
 
 
